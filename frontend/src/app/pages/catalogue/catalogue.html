@@ -1,0 +1,93 @@
+<section class="container" id="catalogue">
+  <div class="heading">
+    @if (embedded()) {
+      <h2>Notre sélection</h2>
+    } @else {
+      <h1>Tous nos produits</h1>
+    }
+    <p>Habillement, mode enfant et chaussures : trouvez votre signature.</p>
+  </div>
+  @if (error()) {
+    <div class="error" role="alert">{{ error() }}</div>
+  }
+  <div class="catalogue grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)]">
+    <details class="filters" [open]="wideFilters()?.matches">
+      <summary>Affiner la sélection</summary>
+      <form (ngSubmit)="apply()">
+        <label
+          >Rechercher<input name="q" placeholder="Nom ou référence…" [(ngModel)]="filter.q"
+        /></label>
+        <fieldset>
+          <legend>Catégories</legend>
+          <label class="check"
+            ><input type="radio" name="category" value="" [(ngModel)]="filter.category" />Tous les
+            produits</label
+          >
+          @for (c of cats(); track c.id) {
+            <label class="check"
+              ><input
+                type="radio"
+                name="category"
+                [value]="'' + c.id"
+                [(ngModel)]="filter.category"
+              />{{ c.name }}</label
+            >
+          }
+        </fieldset>
+        <label
+          >Prix minimum · {{store.currency()}}<input
+            name="min"
+            type="number"
+            min="0"
+            step="1"
+            [(ngModel)]="filter.min" /></label
+        ><label
+          >Prix maximum · {{store.currency()}}<input
+            name="max"
+            type="number"
+            min="0"
+            step="1"
+            [(ngModel)]="filter.max" /></label
+        ><label class="check"
+          ><input
+            type="checkbox"
+            name="available"
+            [(ngModel)]="filter.available"
+          />Disponible</label
+        ><label
+          >Trier par<select name="sort" [(ngModel)]="filter.sort">
+            <option value="selection">Notre sélection</option>
+            <option value="price_asc">Prix croissant</option>
+            <option value="price_desc">Prix décroissant</option>
+            <option value="name">Nom du produit</option>
+          </select></label
+        ><button>Appliquer les filtres</button
+        ><button type="button" class="text-button" (click)="reset()">Réinitialiser</button>
+      </form>
+    </details>
+    <div class="results" [attr.aria-busy]="loading()">
+      <p class="caption">
+        {{ data()?.total || 0 }} produits{{ loading() ? ' · Chargement…' : '' }}
+      </p>
+      <p class="notice" role="status">{{ notice() }}</p>
+      <div class="product-grid grid grid-cols-1 min-[360px]:grid-cols-2 xl:grid-cols-3">
+        @if (loading()) {
+          @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+            <app-product-card-skeleton />
+          }
+        }
+        @for (p of loading() ? [] : data()?.items; track p.id; let i = $index) {
+          <app-product-card [appReveal]="i * 65" [product]="p" (add)="add($event)" />
+        }
+      </div>
+      @if (!loading() && !error() && !data()?.items?.length) {
+        <div class="panel">
+          <h2>{{ !filter.q && !filter.category ? 'Votre prochaine sélection arrive.' : 'Aucun produit trouvé' }}</h2><p>{{ !filter.q && !filter.category ? 'Notre équipe prépare le catalogue. Écrivez-nous pour découvrir les articles disponibles et recevoir nos conseils.' : 'Essayez une autre recherche ou réinitialisez les filtres.' }}</p><a class="button" [href]="store.whatsapp" target="_blank" rel="noopener noreferrer">Contacter Kibaru ↗</a>
+        </div>
+      }
+      @if (data(); as d) {
+        <app-pagination [page]="d.page" [pages]="d.pages" (change)="page($event)" />
+      }
+    </div>
+  </div>
+</section>

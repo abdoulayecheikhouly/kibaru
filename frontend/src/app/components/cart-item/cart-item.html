@@ -1,0 +1,26 @@
+<article class="cart-item">
+  <img [src]="item().image" [alt]="item().name" />
+  <div class="stack tight grow">
+    <h3>{{ item().name }}</h3>
+    <p class="caption">{{ item().sku }} · {{item().variant_label}}</p>
+    <strong>{{ money(item().unit_price) }}</strong>
+    <div class="cart-item-actions flex flex-wrap items-center justify-between gap-3">
+      <div class="quantity">
+        <button
+          [attr.aria-label]="'Diminuer ' + item().name"
+          (click)="quantityChange.emit(item().quantity - 1)"
+        >
+          −</button
+        ><span aria-live="polite">{{ item().quantity }}</span
+        ><button
+          [attr.aria-label]="'Augmenter ' + item().name"
+          [disabled]="item().quantity >= item().stock || item().quantity >= 100"
+          (click)="quantityChange.emit(item().quantity + 1)"
+        >
+          +
+        </button>
+      </div>
+      <button class="text-button" (click)="quantityChange.emit(0)">Retirer</button>
+    </div>
+  </div>
+</article>

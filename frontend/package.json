@@ -1,0 +1,47 @@
+{
+  "name": "kibaru",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve --port 4201 --host 127.0.0.1 --proxy-config proxy.conf.json",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "theme": "sass --load-path=node_modules --style=compressed --no-source-map src/material-theme.scss src/material-theme.css",
+    "prebuild": "npm run theme && npm run styles",
+    "prestart": "npm run theme && npm run styles",
+    "styles": "node scripts/styles.mjs"
+  },
+  "private": true,
+  "packageManager": "npm@11.17.0",
+  "dependencies": {
+    "@angular/cdk": "^22.2.3",
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/material": "^22.2.3",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0",
+    "@angular/service-worker": "^22.2.3",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/dm-sans": "^5.3.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.3",
+    "@angular/cli": "^22.2.3",
+    "@angular/compiler-cli": "^22.2.0",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.31",
+    "prettier": "^3.8.1",
+    "sass": "^1.105.2",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2"
+  },
+  "overrides": {
+    "vite": "8.3.3"
+  }
+}

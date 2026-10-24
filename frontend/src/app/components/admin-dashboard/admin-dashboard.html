@@ -1,0 +1,157 @@
+<div class="section-title">
+  <div>
+    <p class="eyebrow">PILOTAGE DE LA BOUTIQUE</p>
+    <h1>Vue d’ensemble</h1><label>Devise des statistiques<select [(ngModel)]="currency" (ngModelChange)="load()"><option value="XOF">FCFA</option></select></label>
+    <p>Les ventes comptent uniquement les commandes confirmées, en préparation, expédiées ou livrées par votre équipe.</p>
+  </div>
+  <button class="dark" (click)="navigate.emit('products')">Gérer les produits ↗</button>
+</div>
+<div class="row dashboard-location">
+  <button class="light" [disabled]="locating()" (click)="gps()">
+    {{ locating() ? 'Recherche de la position…' : 'Mettre à jour la localisation GPS' }}</button
+  ><span class="caption"
+    >À utiliser depuis la boutique · autorisation GPS du navigateur requise.</span
+  >
+</div>
+@if (notice()) {
+  <div class="success" role="status">{{ notice() }}</div>
+}
+<form class="analytics-filters" (ngSubmit)="load()">
+  <label
+    >Période<select
+      name="period"
+      [(ngModel)]="period"
+      (ngModelChange)="period !== 'range' && load()"
+    >
+      <option value="week">Par semaine</option>
+      <option value="month">Par mois</option>
+      <option value="range">Plage de dates</option>
+    </select></label
+  >
+  @if (period === 'month') {
+    <label
+      >Mois<input
+        required
+        type="month"
+        name="month"
+        min="2000-01"
+        max="2100-12"
+        [(ngModel)]="month"
+    /></label>
+  }
+  @if (period === 'week') {
+    <label>Semaine<input type="week" name="week" [(ngModel)]="week" /></label>
+  }
+  @if (period === 'range') {
+    <label>Du<input required type="date" name="from" [(ngModel)]="from" /></label
+    ><label>Au<input required type="date" name="to" [(ngModel)]="to" /></label>
+  }
+  <button [disabled]="loading()">{{ loading() ? 'Chargement…' : 'Appliquer la période' }}</button>
+</form>
+@if (error()) {
+  <div class="error" role="alert">{{ error() }}</div>
+}
+@if (data(); as d) {
+  <p class="caption">Du {{ d.from }} au {{ d.to }} inclus · Heure du Maroc</p>
+  <div class="dashboard-metrics">
+    <article class="panel">
+      <p>CHIFFRE D’AFFAIRES CONFIRMÉ</p>
+      <strong>{{ money(d.summary.revenue) }}</strong>
+    </article>
+    <article class="panel">
+      <p>COMMANDES CONFIRMÉES</p>
+      <strong>{{ d.summary.orders }}</strong>
+    </article>
+    <article class="panel">
+      <p>ARTICLES VENDUS</p>
+      <strong>{{ d.units_sold }}</strong>
+    </article>
+    <article class="panel">
+      <p>PRODUIT LE PLUS VENDU</p>
+      <strong class="bestseller">{{ d.top_products[0]?.name || 'Aucune vente' }}</strong>
+      @if (d.top_products[0]) {
+        <span>{{ d.top_products[0].quantity }} unités</span>
+      }
+    </article>
+  </div>
+  <section class="panel sales-chart">
+    <div class="section-title">
+      <div>
+        <h2>Les 10 produits les plus vendus</h2>
+        <p>Classement par quantité · commandes confirmées sur la période</p>
+      </div>
+    </div>
+    @if (d.top_products.length) {
+      <figure aria-label="Histogramme des dix meilleures ventes">
+        <div
+          class="histogram-scroll"
+          tabindex="0"
+          role="region"
+          aria-label="Histogramme, défilement horizontal"
+        >
+          <div class="histogram">
+            @for (p of d.top_products; track p.product_id; let i = $index) {
+              <div
+                class="histogram-column"
+                [title]="p.name + ' : ' + p.quantity + ' unités · ' + money(p.revenue)"
+              >
+                <strong>{{ p.quantity }}</strong>
+                <div class="histogram-bar" [style.height.px]="bar(p.quantity)"></div>
+                <span>{{ i + 1 }}. {{ p.name }}</span>
+              </div>
+            }
+          </div>
+        </div>
+        <figcaption class="caption">
+          Hauteur des barres : nombre d’unités vendues. Les commandes en attente ou annulées sont
+          exclues.
+        </figcaption>
+      </figure>
+      <details class="chart-data">
+        <summary>Voir les chiffres détaillés</summary>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>PRODUIT</th>
+                <th>QUANTITÉ</th>
+                <th>VENTES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of d.top_products; track p.product_id) {
+                <tr>
+                  <td>{{ p.name }}</td>
+                  <td>{{ p.quantity }}</td>
+                  <td>{{ money(p.revenue) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </details>
+    } @else {
+      <div class="chart-empty">
+        <h3>Aucune vente confirmée sur cette période</h3>
+        <p>
+          Confirmez les commandes après votre échange avec le client sur WhatsApp pour alimenter ce
+          graphique.
+        </p>
+        <button (click)="navigate.emit('orders')">Voir les demandes de commande</button>
+      </div>
+    }
+  </section>
+  <section class="panel inventory-overview">
+    <div>
+      <h2>Votre stock aujourd’hui</h2>
+      <p>{{ d.inventory.products }} références · {{ d.inventory.units }} unités disponibles</p>
+    </div>
+    <div class="stock-alerts">
+      <span
+        ><strong>{{ d.inventory.out_of_stock }}</strong> en rupture</span
+      ><span
+        ><strong>{{ d.inventory.low_stock }}</strong> en stock faible (1 à 5)</span
+      ><button class="dark" (click)="navigate.emit('stock')">Suivre le stock ↗</button>
+    </div>
+  </section>
+}

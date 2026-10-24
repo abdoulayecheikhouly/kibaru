@@ -1,0 +1,3 @@
+import {Component,input,output} from '@angular/core';
+@Component({selector:'app-pagination',template:`@if(pages()>1){<nav class="pagination" aria-label="Pagination"><button [disabled]="page()===1" (click)="change.emit(page()-1)" aria-label="Page précédente">←</button>@for(n of numbers();track n){<button [attr.aria-current]="n===page()?'page':null" (click)="change.emit(n)">{{n}}</button>}<button [disabled]="page()>=pages()" (click)="change.emit(page()+1)" aria-label="Page suivante">→</button></nav>}`})
+export class Pagination {page=input(1);pages=input(1);change=output<number>();numbers(){const start=Math.max(1,Math.min(this.page()-2,this.pages()-4));return Array.from({length:Math.min(5,this.pages())},(_,i)=>start+i);}}

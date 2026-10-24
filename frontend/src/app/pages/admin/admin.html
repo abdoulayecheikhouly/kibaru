@@ -1,0 +1,340 @@
+<mat-sidenav-container class="admin-shell"
+  ><mat-sidenav
+    class="admin-drawer"
+    [mode]="compact()?.matches ? 'over' : 'side'"
+    [opened]="!compact()?.matches || menuOpen()"
+    (closedStart)="menuOpen.set(false)"
+    [fixedInViewport]="true"
+    ><aside class="admin-nav">
+      <a routerLink="/" class="admin-brand">KIBARU</a>
+      <p class="eyebrow">ADMINISTRATION</p>
+      @for (
+        t of [
+          ['dashboard', 'Vue d’ensemble'],
+          ['products', 'Produits'],
+          ['categories', 'Catégories'],
+          ['stock', 'Suivi du stock'],
+          ['settings', 'Réglages du site'],
+          ['orders', 'Demandes de commande'],
+        ];
+        track t[0]
+      ) {
+        <button [class.active]="view() === t[0]" (click)="tab(t[0])">{{ t[1] }}</button>
+      }
+      <a routerLink="/produits">Voir la boutique ↗</a
+      ><button (click)="logout()">Déconnexion</button>
+    </aside></mat-sidenav
+  ><mat-sidenav-content
+    ><div class="admin-content">
+      <div class="admin-top">
+        <div class="row admin-top-label">
+          @if (compact()?.matches) {
+            <button
+              mat-icon-button
+              aria-label="Ouvrir le menu administration"
+              (click)="menuOpen.set(true)"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+                stroke="currentColor"
+                stroke-width="1.5"
+                aria-hidden="true"
+              >
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+            </button>
+          }
+          <span>Gestion de la boutique</span>
+        </div>
+        <span>{{ store.user()?.name }}</span>
+      </div>
+      @if (error()) {
+        <div class="error" role="alert">{{ error() }}</div>
+      }
+      @if (notice()) {
+        <div class="success" role="status">{{ notice() }}</div>
+      }
+      @switch (view()) {
+        @case ('dashboard') {
+          <app-admin-dashboard (navigate)="tab($event)" />
+        }
+        @case ('settings') {
+          <app-admin-settings />
+        }
+        @case ('stock') {
+          <app-admin-stock />
+        }
+        @case ('products') {
+          @if (edit()) {
+            @if (conflict()) {
+              <button type="button" class="light" (click)="reloadProduct()">
+                Recharger la fiche
+              </button>
+            }
+            <h1>{{ product.id ? 'Modifier le produit' : 'Ajouter un produit' }}</h1>
+            <form
+              class="admin-form grid grid-cols-1 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]"
+              (ngSubmit)="saveProduct()"
+            >
+              <div class="panel stack">
+                <label
+                  >Nom du produit *<input
+                    required
+                    maxlength="160"
+                    name="name"
+                    [(ngModel)]="product.name" /></label
+                ><label
+                  >Référence (SKU) *<input
+                    required
+                    maxlength="80"
+                    name="sku"
+                    [(ngModel)]="product.sku" /></label
+                ><label
+                  >Catégorie *<select required name="category_id" [(ngModel)]="product.category_id">
+                    @for (c of categories(); track c.id) {
+                      <option [ngValue]="c.id">{{ c.name }}</option>
+                    }
+                  </select></label
+                ><label
+                  >Description<textarea
+                    name="description"
+                    rows="5"
+                    maxlength="8000"
+                    [(ngModel)]="product.description"
+                  ></textarea>
+                </label>
+<label>Prix FCFA *<input required name="price_xof" type="number" min="1" max="100000000" step="1" [(ngModel)]="product.price_xof" /></label>
+ <label class="check"><input type="checkbox" name="reference_only" [(ngModel)]="product.reference_only"/>Fiche de référence : prix indicatif, commande désactivée</label><h2>Variantes & stock</h2><p class="caption">Taille ou pointure, couleur et tranche d’âge. Chaque variante possède sa propre référence et son stock.</p>
+ @for(v of product.variants;track $index;let i=$index){<div class="variant-editor panel"><label>Référence variante<input [name]="'sku-'+i" [(ngModel)]="v.sku" maxlength="80" placeholder="Automatique si vide" /></label><div class="two-fields"><label>Taille / Pointure<input [name]="'size-'+i" [(ngModel)]="v.size" maxlength="40" /></label><label>Couleur<input [name]="'color-'+i" [(ngModel)]="v.color" maxlength="60" /></label></div><div class="two-fields"><label>Tranche d’âge<input [name]="'capacity-'+i" [(ngModel)]="v.capacity" maxlength="40" placeholder="Ex. 4 à 6 ans" /></label><label>Stock *<input required type="number" min="0" max="1000000" step="1" [name]="'stock-'+i" [(ngModel)]="v.stock" /></label></div><button type="button" class="text-button" [disabled]="product.variants.length===1" (click)="removeVariant(i)">Retirer cette variante</button></div>}
+ <button type="button" class="light" [disabled]="product.variants.length>=100" (click)="addVariant()">Ajouter une variante</button>
+                <label
+                  >Statut<select name="status" [(ngModel)]="product.status">
+                    <option value="draft">Brouillon</option>
+                    <option value="published">Publié</option>
+                  </select></label
+                >
+              </div>
+              <aside class="panel stack">
+                <h2>Photos du produit</h2>
+                <img class="preview" [src]="product.image" alt="Aperçu du produit" /><label
+                  >Sélectionner des photos<input
+                    multiple
+                    [disabled]="busy()"
+                    type="file"
+                    accept="image/jpeg,image/png"
+                    (change)="upload($event)"
+                /></label>
+                <p class="caption">
+                  8 photos maximum · JPEG ou PNG · 5 Mo par photo. La photo principale apparaît dans
+                  le catalogue.
+                </p>
+                <div class="admin-photo-grid">
+                  @for (image of product.images; track image; let i = $index) {
+                    <div class="stack">
+                      <img [src]="image" [alt]="'Photo ' + (i + 1)" />
+                      <button
+                        type="button"
+                        class="light"
+                        [disabled]="busy()"
+                        (click)="product.image = image"
+                      >
+                        {{ product.image === image ? '✓ Principale' : 'Choisir principale' }}
+                      </button>
+                      <button
+                        type="button"
+                        class="text-button"
+                        [disabled]="busy()"
+                        (click)="removePhoto(image)"
+                      >
+                        Retirer la photo {{ i + 1 }}
+                      </button>
+                    </div>
+                  }
+                </div>
+                <label
+                  >Ou choisir un visuel d’ambiance<select name="image" [(ngModel)]="product.image">
+                    <option value="/assets/femme.png">Habillement</option>
+                    <option value="/assets/enfant.png">Enfant</option>
+                    <option value="/assets/shoes.png">Chaussures</option>
+
+                    @if (product.image.startsWith('/api/')) {
+                      <option [value]="product.image">Photo importée</option>
+                    }
+                  </select></label
+                ><button class="dark" [disabled]="busy() || !categories().length">
+                  {{ busy() ? 'Enregistrement…' : 'Enregistrer le produit' }}</button
+                ><button class="light" type="button" (click)="edit.set(false)">Annuler</button>
+              </aside>
+            </form>
+          } @else {
+            <div class="section-title">
+              <div>
+                <h1>Produits</h1>
+                <p>{{ data()?.total || 0 }} produits dans votre catalogue</p>
+              </div>
+              <button class="dark" (click)="editProduct()">+ Ajouter un produit</button>
+            </div>
+            <form class="admin-filters" (ngSubmit)="load()">
+              <label
+                >Rechercher<input name="q" placeholder="Nom ou référence…" [(ngModel)]="q" /></label
+              ><label
+                >Catégorie<select name="category" [(ngModel)]="categoryFilter">
+                  <option value="">Toutes</option>
+                  @for (c of categories(); track c.id) {
+                    <option [value]="c.id">{{ c.name }}</option>
+                  }
+                </select></label
+              ><label
+                >Statut<select name="status" [(ngModel)]="status">
+                  <option value="">Tous</option>
+                  <option value="draft">Brouillon</option>
+                  <option value="published">Publié</option>
+                </select></label
+              ><button>Filtrer</button>
+            </form>
+            <div class="admin-product-cards grid gap-4 md:hidden">
+              @for (p of data()?.items; track p.id) {
+                <article class="panel">
+                  <div class="flex gap-4">
+                    <img class="admin-product-thumb" [src]="p.image" [alt]="p.name" />
+                    <div class="min-w-0">
+                      <h3>{{ p.name }}</h3>
+                      <p class="caption">{{ p.sku }} · {{ p.category_name }}</p>
+                      <strong>{{ money(p.price_xof,'XOF') }}</strong>
+                      <p class="caption">
+                        Stock : {{ p.stock }} ·
+                        {{ p.status === 'published' ? 'Publié' : 'Brouillon' }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row mt-4">
+                    <button class="text-button" (click)="editProduct(p)">Modifier ↗</button
+                    ><button class="text-button" (click)="archive(p)">Retirer</button>
+                  </div>
+                </article>
+              }
+            </div>
+            <div
+              class="table-wrap hidden md:block"
+              tabindex="0"
+              role="region"
+              aria-label="Liste des produits, défilement horizontal"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">PRODUIT / RÉFÉRENCE</th>
+                    <th scope="col">CATÉGORIE</th>
+                    <th scope="col">PRIX</th>
+                    <th scope="col">STOCK</th>
+                    <th scope="col">STATUT</th>
+                    <th scope="col">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (p of data()?.items; track p.id) {
+                    <tr>
+                      <td>
+                        {{ p.name }}<small>{{ p.sku }}</small>
+                      </td>
+                      <td>{{ p.category_name }}</td>
+                      <td>{{ money(p.price_xof,'XOF') }}</td>
+                      <td>{{ p.stock }}</td>
+                      <td>{{ p.status === 'published' ? 'Publié' : 'Brouillon' }}</td>
+                      <td>
+                        <button class="text-button" (click)="editProduct(p)">Modifier ↗</button
+                        ><button class="text-button" (click)="archive(p)">Retirer</button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (data()?.total === 0) {
+              <p>Ajoutez votre premier produit pour alimenter le catalogue.</p>
+            }
+            @if (data(); as d) {
+              <app-pagination [page]="d.page" [pages]="d.pages" (change)="load($event)" />
+            }
+          }
+        }
+        @case ('categories') {
+          <h1>Catégories</h1>
+          <p>{{ categories().length }} catégories pour organiser votre catalogue</p>
+          <div class="admin-form grid grid-cols-1 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+            <div>
+              @for (c of categories(); track c.id) {
+                <div class="panel category-card">
+                  <h3>{{ c.name }}</h3>
+                  <p>
+                    {{ c.slug }} · {{ c.product_count || 0 }} produits ·
+                    {{ c.visible ? 'Visible' : 'Masquée' }}
+                  </p>
+                  <button class="text-button" (click)="editCategory(c)">Modifier ↗</button
+                  ><button class="text-button" (click)="deleteCategory(c)">Supprimer</button>
+                </div>
+              }
+            </div>
+            <form class="panel stack" (ngSubmit)="saveCategory()">
+              <h2>{{ category.id ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+              <label
+                >Nom *<input
+                  required
+                  name="name"
+                  maxlength="100"
+                  [(ngModel)]="category.name" /></label
+              ><label
+                >Identifiant URL *<input
+                  required
+                  name="slug"
+                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                  maxlength="120"
+                  [(ngModel)]="category.slug" /></label
+              ><label
+                >Description<textarea
+                  name="description"
+                  maxlength="2000"
+                  [(ngModel)]="category.description"
+                ></textarea></label
+              ><label class="check"
+                ><input type="checkbox" name="visible" [(ngModel)]="category.visible" />Visible dans
+                le catalogue</label
+              ><button class="dark" [disabled]="busy()">Enregistrer la catégorie</button
+              ><button type="button" class="light" (click)="editCategory()">
+                Nouvelle catégorie
+              </button>
+            </form>
+          </div>
+        }
+        @case ('orders') {
+          <h1>Demandes de commande</h1>
+          <p>
+            Confirmez une demande après avoir échangé avec le client sur WhatsApp. La confirmation
+            met le stock à jour.
+          </p>
+          @for (o of orders()?.items; track o.id) {
+            <div class="panel stack order-card">
+              <h3>{{ o.id }}</h3>
+              <p>{{ o.customer_name }} · {{ o.phone }} · {{ money(o.total,o.currency) }}</p>
+              @for (i of o.items; track $index) {
+                <p>{{ i.quantity }} × {{ i.name }}</p>
+              }
+              <p>{{o.delivery_method==='delivery'?'Livraison':'Retrait'}} · {{o.address}}</p><p>{{ o.note }}</p><details><summary>Historique du suivi</summary>@for(e of o.history;track $index){<p>{{statusLabel(e.status)}} · {{e.created_at}}</p>}</details>
+              <label
+                >Statut<select [ngModel]="o.status" (ngModelChange)="orderStatus(o, $event)">
+                  <option [value]="o.status">{{statusLabel(o.status)}}</option>@for(s of nextStatuses(o.status);track s){<option [value]="s">{{statusLabel(s)}}</option>}
+                </select></label
+              >
+            </div>
+          }
+          @if (orders()?.total === 0) {
+            <p>Aucune demande pour le moment.</p>
+          }
+          @if (orders(); as d) {
+            <app-pagination [page]="d.page" [pages]="d.pages" (change)="load($event)" />
+          }
+        }
+      }</div></mat-sidenav-content
+></mat-sidenav-container>

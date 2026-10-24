@@ -1,0 +1,84 @@
+<p class="eyebrow">INVENTAIRE</p>
+<h1>Suivi du stock</h1>
+<p>Les ventes confirmées diminuent le stock. Une annulation le rétablit automatiquement.</p>
+@if (error()) {
+  <div class="error" role="alert">{{ error() }}</div>
+}
+@if (conflict()) {
+  <button type="button" class="light" (click)="reloadStock()">Recharger les stocks</button>
+}
+@if (notice()) {
+  <div class="success" role="status">{{ notice() }}</div>
+}
+<form class="stock-filters" (ngSubmit)="load()">
+  <label
+    >Rechercher un produit<input name="q" placeholder="Nom ou référence…" [(ngModel)]="q" /></label
+  ><label
+    >Niveau de stock<select name="level" [(ngModel)]="level">
+      <option value="all">Tous les produits</option>
+      <option value="low">Stock faible · 1 à 5</option>
+      <option value="out">Rupture de stock</option>
+    </select></label
+  ><button>Filtrer le stock</button>
+</form>
+<label class="stock-reason"
+  >Motif de l’ajustement<input
+    maxlength="200"
+    name="reason"
+    placeholder="Réception fournisseur, inventaire…"
+    [(ngModel)]="reason"
+/></label>
+<p class="caption">{{ data()?.total || 0 }} références correspondent à votre recherche.</p>
+<div class="stock-cards">
+  @for (p of data()?.items; track p.variant_id) {
+    <article class="panel stock-card">
+      <img [src]="p.image" [alt]="p.name" />
+      <div class="stock-description">
+        <h3>{{ p.name }}</h3>
+        <p class="caption">{{ p.sku }} · {{p.size}} {{p.color}} {{p.capacity}} · {{ p.category_name }}</p>
+        <strong [class.stock-warning]="p.stock <= 5">{{ p.stock }} en stock</strong>
+        <p class="caption">
+          {{ money(store.price(p)) }} · {{ p.status === 'published' ? 'Publié' : 'Brouillon' }}
+        </p>
+      </div>
+      <form class="stock-adjustment" #stockForm="ngForm" (ngSubmit)="stockForm.valid && save(p)">
+        <label
+          >Nouveau stock · {{ p.sku
+          }}<input
+            required
+            type="number"
+            min="0"
+            max="1000000"
+            step="1"
+            [name]="'stock-' + p.variant_id"
+            [(ngModel)]="counts[p.variant_id!]" /></label
+        ><button class="dark" [disabled]="busy()">Enregistrer le stock</button
+        ><button type="button" class="text-button" (click)="movements(p)">
+          Voir les mouvements
+        </button>
+      </form>
+    </article>
+  } @empty {
+    <div class="panel">
+      <h2>Aucun produit</h2>
+      <p>Modifiez vos filtres ou ajoutez vos produits dans l’onglet Produits.</p>
+    </div>
+  }
+</div>
+@if (data(); as d) {
+  <app-pagination [page]="d.page" [pages]="d.pages" (change)="load($event)" />
+}
+@if (selected(); as p) {
+  <section class="panel stock-history">
+    <h2>Mouvements · {{ p.name }}</h2>
+    @for (m of history(); track $index) {
+      <article>
+        <strong>{{ m.previous_stock }} → {{ m.new_stock }}</strong
+        ><span>{{ m.reason }}</span
+        ><small>{{ m.created_at }}</small>
+      </article>
+    } @empty {
+      <p>Aucun mouvement enregistré pour ce produit.</p>
+    }
+  </section>
+}

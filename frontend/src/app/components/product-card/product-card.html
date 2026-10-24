@@ -1,0 +1,27 @@
+<article class="product-card h-full">
+  <a class="product-image-link" [routerLink]="['/produits', product().id]"
+    ><img [src]="product().image" [alt]="product().name" loading="lazy" /><span
+      class="stock-badge"
+      [class.sold-out]="!product().stock"
+      >{{ product().reference_only ? 'Sélection Kibaru' : product().stock ? 'Disponible' : 'Épuisé' }}</span
+    ></a
+  >
+  <div class="product-card-body flex flex-col gap-3 grow">
+    <p class="caption category">{{ product().category_name }}</p>
+    <h3 [title]="product().name">
+      <a [routerLink]="['/produits', product().id]">{{ product().name }}</a>
+    </h3>
+    <strong>{{ money(store.price(product())) }}</strong>@if(product().reference_only){<p class="caption">Prix de référence · Disponibilité à confirmer</p>}
+    @if (product().rating_count) {
+      <p class="caption">
+        ★ {{ (+product().rating_average!).toFixed(1) }} / 5 · {{ product().rating_count }} note(s)
+      </p>
+    }
+    <p class="caption">{{ product().variants.length }} variante(s) · {{ product().sku }}</p>
+    <a class="product-detail-link" [routerLink]="['/produits', product().id]"
+      >Voir le produit <span aria-hidden="true">↗</span></a
+    ><button mat-flat-button [disabled]="!product().reference_only && product().stock === 0" (click)="add.emit(product())">
+      {{ product().reference_only ? 'Découvrir' : product().stock ? 'Choisir ma variante' : 'Indisponible' }}
+    </button>
+  </div>
+</article>

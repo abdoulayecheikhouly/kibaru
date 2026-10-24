@@ -1,0 +1,35 @@
+<a class="skip" href="#content">Aller au contenu</a>
+@if (!router.url.startsWith('/admin')) {
+  <app-site-header />
+}
+@if (!online()) {
+  <div class="connection-banner" role="status">
+    Vous êtes hors connexion. Vos articles restent dans le panier. Reconnectez-vous pour consulter
+    les disponibilités et commander.
+  </div>
+}
+@if (updateReady()) {
+  <div class="connection-banner" role="status">
+    Une nouvelle version est disponible. <button mat-button (click)="refresh()">Actualiser</button>
+  </div>
+}
+<main id="content">
+  @if (store.error()) {
+    <div class="error container" role="alert">{{ store.error() }}</div>
+  }
+  <router-outlet />
+</main>
+@if (!router.url.startsWith('/admin')) {
+  <div class="container">
+    @if (installPrompt()) {
+      <div class="install-panel">
+        <div>
+          <strong>Votre boutique, à portée de main</strong>
+          <p>Installez Kibaru sur votre téléphone.</p>
+        </div>
+        <button mat-flat-button (click)="install()">Installer l’application</button>
+      </div>
+    }
+  </div>
+  <app-site-footer />
+}

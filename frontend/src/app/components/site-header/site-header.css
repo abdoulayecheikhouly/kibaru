@@ -1,0 +1,211 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.commerce-header {
+  background: #ffffff;
+  color: #173753;
+  box-shadow: 0 2px 10px #1528200d;
+}
+.header-main {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  gap: 28px;
+  align-items: center;
+  padding-block: 16px;
+}
+.commerce-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.commerce-brand img {
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.commerce-brand > span {
+  font-size: 22px;
+  letter-spacing: -1px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.commerce-brand small {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #617083;
+  margin-top: 2px;
+}
+.header-search {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 7px;
+  padding: 3px 6px 3px 16px;
+  min-width: 0;
+  color: #173753;
+}
+.header-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: none;
+  padding: 9px 0;
+  font-size: 14px;
+}
+.header-search button {
+  flex-shrink: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.currency-select select {
+  width: 82px;
+  background: transparent;
+  border: 1px solid #95cc85;
+  border-radius: 6px;
+  padding: 8px 5px;
+  font-size: 11px;
+  color: #16442b;
+}
+.account-link {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.header-cart {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-direction: column;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.cart-icon {
+  position: relative;
+}
+.cart-icon b {
+  position: absolute;
+  top: -6px;
+  right: -9px;
+  background: #173753;
+  color: white;
+  font-size: 10px;
+  line-height: 17px;
+  min-width: 17px;
+  text-align: center;
+  border-radius: 50%;
+}
+.mobile-menu-button {
+  display: none;
+}
+.header-rayons {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  font-size: 12px;
+  padding-block: 8px;
+  background: white;
+  box-shadow: 0 0 0 100vmax white;
+  clip-path: inset(0 -100vmax);
+}
+.header-rayons > a {
+  white-space: nowrap;
+  padding: 7px 0;
+}
+.header-rayons button {
+  color: #173753;
+  white-space: nowrap;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.header-rayons > a:hover {
+  color: #173753;
+}
+@media (max-width: 1100px) {
+  .header-main {
+    gap: 18px;
+  }
+  .header-actions {
+    gap: 12px;
+  }
+  .commerce-brand small {
+    display: none;
+  }
+}
+@media (max-width: 760px) {
+  .header-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-block: 12px;
+  }
+  .header-search {
+    grid-row: 2;
+    grid-column: 1/-1;
+  }
+  .commerce-brand > span {
+    font-size: 19px;
+  }
+  .commerce-brand img {
+    width: 36px;
+    height: 36px;
+  }
+  .header-actions {
+    gap: 11px;
+  }
+  .header-cart > span:last-child {
+    display: none;
+  }
+  .mobile-menu-button {
+    display: inline-flex;
+    color: #123d2b;
+  }
+  .account-link {
+    display: none;
+  }
+  .header-rayons {
+    gap: 20px;
+    padding-block: 4px;
+  }
+  .header-rayons > a {
+    font-size: 11px;
+  }
+  .header-search input {
+    font-size: 16px;
+  }
+  .currency-select select {
+    width: 73px;
+    padding: 8px 3px;
+  }
+}
+@media (max-width: 360px) {
+  .header-actions {
+    gap: 6px;
+  }
+  .commerce-brand {
+    gap: 6px;
+  }
+  .commerce-brand > span {
+    font-size: 16px;
+  }
+  .commerce-brand img {
+    width: 30px;
+    height: 30px;
+  }
+  .header-main {
+    gap: 7px;
+  }
+}
+
+.commerce-header{border-bottom:1px solid #dfe5ea}.commerce-brand>span{font-size:28px;letter-spacing:1px;font-weight:800}.commerce-brand small{font-size:10px;letter-spacing:.3px}.header-search{background:#f3f5f7;border-radius:30px}.header-rayons{justify-content:center;border-top:1px solid #eef1f4}.header-main{padding-block:20px}.account-link{display:none}@media(max-width:600px){.commerce-brand>span{font-size:23px}.header-main{padding-block:12px}}
+
+@media(max-width:1100px){.header-rayons{justify-content:flex-start}}

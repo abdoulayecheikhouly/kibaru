@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "application",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/index.html",
+          "/*.css",
+          "/*.js",
+          "/manifest.webmanifest",
+          "/icons/**",
+          "/assets/emblem.svg"
+        ]
+      }
+    },
+    {
+      "name": "images-and-fonts",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/assets/**", "/media/**"]
+      }
+    }
+  ],
+  "navigationRequestStrategy": "freshness"
+}

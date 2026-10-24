@@ -1,0 +1,165 @@
+:host {
+  display: block;
+}
+.analytics-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.analytics-filters label {
+  min-width: 160px;
+}
+.dashboard-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+.dashboard-metrics p {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+}
+.dashboard-metrics strong {
+  font: 500 30px/1.2 'Cormorant Garamond';
+}
+.dashboard-metrics .bestseller {
+  font-size: 23px;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.dashboard-metrics span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.sales-chart {
+  background: white;
+}
+.sales-chart h2 {
+  font-size: 32px;
+}
+.histogram-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.histogram {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+  min-width: 520px;
+  height: 290px;
+  padding: 10px 4px 0;
+  border-bottom: 1px solid var(--line);
+  background: repeating-linear-gradient(
+    to top,
+    transparent 0,
+    transparent 46px,
+    #ded9cd66 47px,
+    transparent 48px
+  );
+}
+.histogram-column {
+  flex: 1;
+  min-width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+}
+.histogram-column > strong {
+  font-size: 12px;
+  color: var(--olive);
+}
+.histogram-bar {
+  background: var(--olive);
+  width: min(100%, 42px);
+  border-radius: 5px 5px 0 0;
+}
+.histogram-column:first-child .histogram-bar {
+  background: var(--dark);
+}
+.histogram-column > span {
+  font-size: 10px;
+  height: 46px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.chart-data {
+  margin-top: 24px;
+}
+.chart-data summary {
+  cursor: pointer;
+  padding: 12px 0;
+  color: var(--olive);
+}
+.chart-empty {
+  padding: 32px 0;
+}
+.chart-empty p {
+  max-width: 600px;
+}
+.inventory-overview {
+  margin-top: 24px;
+}
+.stock-alerts {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.stock-alerts strong {
+  font-size: 24px;
+  margin-right: 6px;
+}
+.stock-alerts span {
+  font-size: 12px;
+}
+@media (max-width: 1199px) {
+  .dashboard-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 599px) {
+  .dashboard-metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .dashboard-metrics .panel {
+    padding: 16px;
+  }
+  .dashboard-metrics strong {
+    font-size: 25px;
+  }
+  .dashboard-metrics .bestseller {
+    font-size: 20px;
+  }
+  .analytics-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .analytics-filters label {
+    min-width: 0;
+  }
+  .sales-chart h2 {
+    font-size: 28px;
+  }
+  .histogram {
+    gap: 12px;
+  }
+  .stock-alerts {
+    gap: 16px;
+  }
+  .stock-alerts button {
+    width: 100%;
+  }
+}
+
+.dashboard-location {
+  margin-bottom: 24px;
+}

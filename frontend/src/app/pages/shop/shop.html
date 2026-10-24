@@ -1,0 +1,259 @@
+<div class="container section">
+  @if (error()) {
+    <div class="error" role="alert">{{ error() }}</div>
+  }
+  @switch (view()) {
+    @case ('product') {
+      @if (product(); as p) {
+        <p class="caption">
+          <a routerLink="/produits">Tous les produits</a> / {{ p.category_name }}
+        </p>
+        <div class="detail grid grid-cols-1 lg:grid-cols-2">
+          <div class="product-gallery">
+            <button
+              type="button"
+              class="gallery-main"
+              (click)="zoom()"
+              aria-label="Agrandir les photos du produit"
+            >
+              <img [src]="selectedImage() || p.image" [alt]="p.name" /><span
+                >Cliquer pour agrandir ⤢</span
+              >
+            </button>
+            <div class="photo-thumbnails">
+              @for (image of p.images || [p.image]; track image; let i = $index) {
+                <button
+                  type="button"
+                  [attr.aria-label]="'Voir la photo ' + (i + 1)"
+                  [attr.aria-pressed]="(selectedImage() || p.image) === image"
+                  (click)="selectedImage.set(image)"
+                >
+                  <img [src]="image" [alt]="p.name + ' — photo ' + (i + 1)" />
+                </button>
+              }
+            </div>
+          </div>
+          <div class="stack">
+            <p class="eyebrow">{{ p.category_name }} · {{ p.sku }}</p>
+            <h1>{{ p.name }}</h1>
+            <h3>{{ money(store.price(p)) }}</h3>
+            <p class="product-rating">
+              ★
+              {{
+                p.rating_count
+                  ? average(p.rating_average) + ' / 5 · ' + p.rating_count + ' note(s)'
+                  : 'Aucune note pour le moment'
+              }}
+            </p>
+            <form class="panel stack" (ngSubmit)="rate()">
+              <h2>Noter ce produit</h2>
+              <fieldset class="rating-stars">
+                <legend>Votre note sur 5</legend>
+                @for (score of [1, 2, 3, 4, 5]; track score) {
+                  <label
+                    ><input
+                      type="radio"
+                      name="rating"
+                      [value]="score"
+                      [(ngModel)]="rating"
+                      required
+                    /><span>{{ score }} ★</span></label
+                  >
+                }
+              </fieldset>
+              <p class="caption">
+                Une note par produit et par navigateur, modifiable. Les notes ne sont pas vérifiées
+                par un achat.
+              </p>
+              <button class="light" [disabled]="ratingBusy() || !rating">
+                {{ ratingBusy() ? 'Envoi…' : 'Enregistrer ma note' }}
+              </button>
+              @if (ratingNotice()) {
+                <p role="status">{{ ratingNotice() }}</p>
+              }
+            </form>
+            <p class="multiline">{{ p.description }}</p>@if(p.reference_only){<p class="panel">Prix de référence trouvé en ligne, photo d’illustration. Disponibilité et prix de vente Kibaru à confirmer. Cette fiche ne peut pas être commandée.</p><a class="button" [href]="store.whatsapp" target="_blank" rel="noopener noreferrer">Demander une disponibilité ↗</a>}
+            <label>Choisir taille, couleur ou tranche d’âge<select name="variant" [(ngModel)]="variantId">@for(v of p.variants;track v.id){<option [ngValue]="v.id">{{ variantLabel(v) }} · {{v.stock}} en stock</option>}</select></label>
+            <label>Quantité<input type="number" min="1" [max]="variant?.stock || 0" [(ngModel)]="qty" /></label
+            ><button class="dark" [disabled]="p.reference_only || !variant?.stock || qty < 1 || qty > (variant?.stock || 0)" (click)="add()">
+              Ajouter au panier</button
+            ><a routerLink="/boutique">Contacter la boutique ↗</a>
+          </div>
+        </div>
+      } @else if (!error()) {
+        <p>Chargement du produit…</p>
+      }
+    }
+    @case ('cart') {
+      <h1>Votre panier</h1>
+      <p>Vérifiez votre sélection avant de préparer votre demande.</p>
+      @if (!store.cart().length) {
+        <div class="empty">
+          <h2>Votre panier attend vos envies.</h2>
+          <a class="button" routerLink="/produits">Découvrir le catalogue</a>
+        </div>
+      } @else {
+        <div
+          class="two-columns section grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+        >
+          <div class="stack">
+            @for (i of quote()?.items; track i.variant_id) {
+              <app-cart-item [item]="i" (quantityChange)="quantity(i.variant_id, $event)" />
+            }
+            @if (error()) {
+              @for (i of store.cart(); track i.product_id) {
+                <div class="panel">
+                  Produit #{{ i.product_id }} · Quantité {{ i.quantity
+                  }}<button class="text-button" (click)="quantity(i.product_id, 0)">
+                    Retirer cet article
+                  </button>
+                </div>
+              }
+            }
+            <a routerLink="/produits">← Continuer mes achats</a
+            ><button class="text-button" (click)="store.clear()">Vider le panier</button>
+          </div>
+          <aside class="panel stack order-summary lg:sticky lg:top-28">
+            <h2>Votre sélection</h2>
+            <p>Retrait · {{ store.settings()['address'] }}</p>
+            <hr />
+            <strong
+              >Total articles : {{ quote() ? money(quote()!.total) : 'Vérification…' }}</strong
+            >
+            @if (quote()) {
+              <a class="button dark" routerLink="/commande">Préparer ma commande</a>
+            }
+            <p class="caption">
+              La boutique confirmera votre demande sur WhatsApp. Aucun paiement en ligne n’est
+              demandé.
+            </p>
+          </aside>
+        </div>
+      }
+    }
+    @case ('checkout') {
+      @if (result(); as r) {
+        <h1>Votre demande est préparée</h1>
+        <p>Référence {{ r.order.id }} · {{ money(r.order.total,r.order.currency) }}</p>
+        <a class="button" routerLink="/compte">Suivre mes commandes</a><p>Appuyez sur Envoyer dans WhatsApp. La boutique doit encore confirmer votre demande.</p>
+        <a class="button green" [href]="r.whatsapp_url">Ouvrir WhatsApp ↗</a
+        ><a class="button light" routerLink="/produits">Continuer mes achats</a>
+      } @else if (!store.cart().length) {
+        <h1>Votre panier est vide</h1>
+        <a routerLink="/produits">Voir le catalogue</a>
+      } @else {
+        <h1>Préparer votre commande</h1>
+        <p>Panier → Coordonnées → WhatsApp</p>
+        <form
+          class="two-columns section grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+          #orderForm="ngForm"
+          (ngSubmit)="orderForm.valid && order()"
+        >
+          <div class="stack">
+            <h2>Vos coordonnées</h2>
+            <label
+              >Prénom et nom *<input
+                required
+                name="name"
+                maxlength="100"
+                autocomplete="name"
+                [(ngModel)]="name" /></label
+            ><label
+              >Téléphone *<input
+                required
+                name="phone"
+                type="tel"
+                pattern="[+0-9 ()-]{8,24}"
+                maxlength="24"
+                autocomplete="tel"
+                [(ngModel)]="phone" /></label
+            ><label>Retrait<input [value]="store.settings()['address']" readonly /></label
+            ><label
+              >Mode de réception<select name="delivery" [(ngModel)]="deliveryMethod"><option value="pickup">Retrait à convenir</option><option value="delivery">Livraison à convenir</option></select></label><label>Adresse de livraison<textarea name="address" [(ngModel)]="address" [required]="deliveryMethod==='delivery'" maxlength="500"></textarea></label><p class="caption">Les éventuels frais et délais de livraison seront confirmés par Kibaru sur WhatsApp.</p><label>Message à la boutique<textarea
+                name="note"
+                maxlength="1000"
+                rows="4"
+                [(ngModel)]="note"
+              ></textarea>
+            </label>
+            <p class="caption">Vos coordonnées seront reprises dans le message WhatsApp.</p>
+          </div>
+          <aside class="panel stack order-summary lg:sticky lg:top-28">
+            <h2>Votre demande</h2>
+            @for (i of quote()?.items; track i.variant_id) {
+              <div>
+                {{ i.quantity }} × {{ i.name }}
+                <p>{{ money(i.unit_price * i.quantity) }}</p>
+              </div>
+            }
+            <hr />
+            <strong>Total articles : {{ quote() ? money(quote()!.total) : 'Vérification…' }}</strong
+            ><button class="green" [disabled]="busy() || !quote()">
+              {{ busy() ? 'Préparation…' : 'Continuer sur WhatsApp ↗' }}
+            </button>
+            <p class="caption">
+              WhatsApp s’ouvre avec un message préparé. Appuyez sur Envoyer pour le transmettre. La
+              boutique confirmera la commande. Aucun paiement en ligne.
+            </p>
+            <a routerLink="/panier">← Modifier mon panier</a>
+          </aside>
+        </form>
+      }
+    }
+    @case ('location') {
+      <h1>Contacter Kibaru</h1>
+      <p>Votre sélection mode, mode enfant et chaussures.</p>
+      <div
+        class="two-columns section grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
+      >
+        <div class="location-card panel">
+          <p class="eyebrow">KIBARU</p>
+          <img src="/assets/emblem.svg" width="100" height="100" alt="" />
+          <h2>{{ store.settings()['address'] }}</h2>
+          <p></p>
+          <a class="button dark" [href]="maps" target="_blank" rel="noreferrer"
+            >Ouvrir Google Maps ↗</a
+          >
+        </div>
+        <div class="stack">
+          <h2>Une visite,<br />une belle découverte.</h2>
+          <p>{{ store.settings()['address'] }}</p>
+          <a [href]="store.telephone(store.settings()['phone'])">{{ store.settings()['phone'] }}</a
+          ><a [href]="store.telephone(store.settings()['secondary_phone'])">{{
+            store.settings()['secondary_phone']
+          }}</a
+          ><a class="button green" [href]="store.whatsapp" target="_blank" rel="noreferrer"
+            >Écrire sur WhatsApp ↗</a
+          >
+          <p class="caption">
+            {{ store.settings()['opening_hours'] }}
+          </p>
+        </div>
+      </div>
+    }
+    @case ('order') {
+      @if(detailOrder();as o){<a routerLink="/compte">← Mes commandes</a><h1>Commande {{o.id}}</h1><p>{{money(o.total,o.currency)}} · {{status(o.status)}}</p><p>{{o.delivery_method==='delivery'?'Livraison':'Retrait'}} · {{o.address}}</p><div class="panel stack">@for(i of o.items;track i.variant_id){<p>{{i.quantity}} × {{i.name}} · {{i.variant_label}} — {{money(i.unit_price,o.currency)}}</p>}</div><h2>Suivi de votre commande</h2><ol class="order-timeline">@for(event of o.history;track $index){<li><strong>{{status(event.status)}}</strong><span>{{event.created_at}}</span></li>}</ol><p>Contactez Kibaru sur WhatsApp en indiquant votre référence pour toute question.</p><a class="button" [href]="store.whatsapp" target="_blank" rel="noreferrer">Contacter Kibaru ↗</a>}
+    }
+    @case ('account') {
+      <h1>Bonjour, {{ store.user()?.name }}</h1>
+      <p>Retrouvez vos commandes et leur état d’avancement.</p><button class="light" (click)="loadOrders()">Actualiser le suivi</button><button class="text-button" (click)="store.logout(); router.navigateByUrl('/')">Déconnexion</button>
+      @for (o of orders()?.items; track o.id) {
+        <div class="panel order-card">
+          <h3><a [routerLink]="['/commandes',o.id]">{{ o.id }} ↗</a></h3>
+          <p>{{ money(o.total,o.currency) }} · {{ status(o.status) }}</p>
+          @for (i of o.items; track $index) {
+            <p>{{ i.quantity }} × {{ i.name }} · {{i.variant_label}}</p>
+          }
+        </div>
+      }
+      @if (orders()?.total === 0) {
+        <p>
+          Vous n’avez pas encore de demande. <a routerLink="/produits">Découvrir le catalogue</a>
+        </p>
+      }
+      @if (orders(); as d) {
+        <app-pagination [page]="d.page" [pages]="d.pages" (change)="loadOrders($event)" />
+      }
+    }
+  }
+</div>

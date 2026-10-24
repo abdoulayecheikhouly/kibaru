@@ -1,0 +1,61 @@
+<footer class="commerce-footer">
+  <div class="container footer-grid">
+    <section>
+      <a routerLink="/" class="footer-brand"
+        ><img [src]="store.settings()['logo']" width="44" height="44" alt="" />{{
+          store.settings()['store_name']
+        }}</a
+      >
+      <p>{{ store.settings()['about'] }}</p>
+      <a routerLink="/boutique">Découvrir notre boutique ↗</a>
+    </section>
+    <section>
+      <h2>Nos univers</h2>
+      <a routerLink="/produits">Tous nos produits</a>
+      @for (c of store.categories(); track c.id) {
+        <a routerLink="/produits" [queryParams]="{ category: c.id }">{{ c.name }}</a>
+      }
+      <a routerLink="/panier">Votre panier</a>
+    </section>
+    <section>
+      <h2>Aide & contact</h2>
+      <p>{{ store.settings()['address'] }}</p>
+      <a [href]="store.telephone(store.settings()['phone'])">{{ store.settings()['phone'] }}</a>
+      @if (store.settings()['secondary_phone']) {
+        <a [href]="store.telephone(store.settings()['secondary_phone'])">{{
+          store.settings()['secondary_phone']
+        }}</a>
+      }
+      @if (store.settings()['email']) {
+        <a [href]="'mailto:' + store.settings()['email']">{{ store.settings()['email'] }}</a>
+      }
+      <p>{{ store.settings()['opening_hours'] }}</p>
+      <a [href]="store.whatsapp" target="_blank" rel="noopener noreferrer"
+        >Nous écrire sur WhatsApp ↗</a
+      >
+    </section>
+    <section>
+      <h2>Suivez-nous</h2>
+      <div class="social-links">
+        @for (s of socials; track s[0]) {
+          @if (store.settings()[s[0]]) {
+            <a
+              [href]="store.settings()[s[0]]"
+              target="_blank"
+              rel="noopener noreferrer"
+              [attr.aria-label]="s[1]"
+              [title]="s[1]"
+              >{{ s[2] }}</a
+            >
+          }
+        }
+      </div>
+      <a [href]="store.maps" target="_blank" rel="noopener noreferrer">Notre localisation ↗</a>
+      <p class="footer-country">Sénégal · Prix en FCFA</p></section>
+  </div>
+  <div class="container footer-bottom">
+    <span
+      >© {{ year }} {{ store.settings()['store_name'] }} · {{ store.settings()['tagline'] }}</span
+    ><span>Votre commande sur WhatsApp</span><a href="/photo-credits.html">Crédits photos</a><a routerLink="/admin">Espace équipe</a>
+  </div>
+</footer>

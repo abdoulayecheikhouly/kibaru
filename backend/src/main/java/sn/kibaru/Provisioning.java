@@ -1,0 +1,5 @@
+package sn.kibaru;
+import org.springframework.context.annotation.*;import org.springframework.boot.ApplicationRunner;import org.springframework.core.env.Environment;import org.springframework.jdbc.core.JdbcTemplate;import org.springframework.security.crypto.password.PasswordEncoder;import java.util.*;
+@Configuration public class Provisioning {
+ @Bean ApplicationRunner provision(JdbcTemplate db,PasswordEncoder encoder,Environment env){return args->{String email=env.getProperty("ADMIN_EMAIL"),password=env.getProperty("ADMIN_PASSWORD");if(email!=null&&!email.isBlank()&&password!=null&&!password.isBlank()){if(password.length()<16)throw new IllegalStateException("ADMIN_PASSWORD must be at least 16 characters");if(db.queryForObject("SELECT COUNT(*) FROM shop_user WHERE email=?",Long.class,email.toLowerCase(Locale.ROOT))==0)db.update("INSERT INTO shop_user(name,email,phone,password_hash,role) VALUES(?,?,?,?,'admin')","Équipe Kibaru",email.toLowerCase(Locale.ROOT),"",encoder.encode(password));}};}
+}

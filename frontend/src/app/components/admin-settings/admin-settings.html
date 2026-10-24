@@ -1,0 +1,175 @@
+<p class="eyebrow">VOTRE SITE, VOS INFORMATIONS</p>
+<h1>Réglages du site</h1>
+<p>
+  Ces informations alimentent la navbar, l’accueil, le pied de page, WhatsApp et la page boutique.
+</p>
+@if (error()) {
+  <div class="error" role="alert">{{ error() }}</div>
+}
+@if (notice()) {
+  <div class="success" role="status">{{ notice() }}</div>
+}
+@if (loaded()) {
+  <form class="settings-layout" #form="ngForm" (ngSubmit)="form.valid && save()">
+    <div class="stack">
+      <section class="panel stack">
+        <h2>Identité & accueil</h2>
+        <label
+          >Nom de la boutique *<input
+            required
+            name="store_name"
+            maxlength="200"
+            [(ngModel)]="values['store_name']" /></label
+        ><label
+          >Signature *<input
+            required
+            name="tagline"
+            maxlength="200"
+            [(ngModel)]="values['tagline']" /></label
+        ><label
+          >Bandeau d’annonce<input
+            name="announcement"
+            maxlength="200"
+            [(ngModel)]="values['announcement']" /></label
+        ><label
+          >Titre de l’accueil *<input
+            required
+            name="hero_title"
+            maxlength="200"
+            [(ngModel)]="values['hero_title']" /></label
+        ><label
+          >Texte d’accueil<textarea
+            name="hero_subtitle"
+            maxlength="1000"
+            rows="3"
+            [(ngModel)]="values['hero_subtitle']"
+          ></textarea></label
+        ><label
+          >Présentation de la boutique<textarea
+            name="about"
+            maxlength="4000"
+            rows="5"
+            [(ngModel)]="values['about']"
+          ></textarea>
+        </label>
+        <div class="settings-logo">
+          <img [src]="values['logo']" alt="Aperçu du logo" /><label
+            >Changer le logo<input
+              type="file"
+              accept="image/jpeg,image/png"
+              (change)="logo($event)"
+          /></label>
+        </div>
+        <p class="caption">
+          JPEG ou PNG · 5 Mo maximum. Le logo vectoriel d’origine reste disponible.
+        </p>
+        <button type="button" class="text-button" (click)="values['logo'] = '/assets/emblem.svg'">
+          Utiliser le logo d’origine
+        </button>
+      </section>
+      <section class="panel stack">
+        <h2>Contact & commandes</h2>
+        <label
+          >Téléphone principal *<input
+            required
+            name="phone"
+            type="tel"
+            maxlength="24"
+            [(ngModel)]="values['phone']" /></label
+        ><label
+          >Second téléphone<input
+            name="secondary_phone"
+            type="tel"
+            maxlength="24"
+            [(ngModel)]="values['secondary_phone']" /></label
+        ><label
+          >Numéro WhatsApp des commandes *<input
+            required
+            name="whatsapp"
+            inputmode="numeric"
+            pattern="[1-9][0-9]{7,14}"
+            maxlength="15"
+            [(ngModel)]="values['whatsapp']"
+        /></label>
+        <p class="caption">Format international sans + ni espace, par exemple 221772506666.</p>
+        <label
+          >Adresse e-mail publique<input
+            type="email"
+            name="email"
+            maxlength="200"
+            [(ngModel)]="values['email']" /></label
+        ><label
+          >Horaires & informations pratiques<textarea
+            name="opening_hours"
+            maxlength="1000"
+            rows="3"
+            [(ngModel)]="values['opening_hours']"
+          ></textarea>
+        </label>
+      </section>
+    </div>
+    <div class="stack">
+      <section class="panel stack">
+        <h2>Localisation de la boutique</h2>
+        <label
+          >Adresse *<textarea
+            required
+            name="address"
+            maxlength="300"
+            rows="3"
+            [(ngModel)]="values['address']"
+          ></textarea></label
+        ><button class="dark" type="button" [disabled]="locating() || busy()" (click)="gps()">
+          {{ locating() ? 'Recherche de la position…' : 'Mettre à jour la localisation GPS' }}
+        </button>
+        <p class="caption">
+          Utilisez ce bouton lorsque vous êtes dans la boutique. Le navigateur demandera l’accès à
+          la position de votre appareil ; les coordonnées sont enregistrées automatiquement.
+        </p>
+        <div class="two-fields grid grid-cols-1 sm:grid-cols-2">
+          <label
+            >Latitude<input
+              name="latitude"
+              inputmode="decimal"
+              [(ngModel)]="values['latitude']" /></label
+          ><label
+            >Longitude<input name="longitude" inputmode="decimal" [(ngModel)]="values['longitude']"
+          /></label>
+        </div>
+        <a [href]="store.maps" target="_blank" rel="noopener noreferrer"
+          >Vérifier la position publiée sur Google Maps ↗</a
+        >
+      </section>
+      <section class="panel stack">
+        <h2>Réseaux sociaux</h2>
+        <p>Les liens renseignés apparaissent dans le pied de page.</p>
+        @for (s of socials; track s[0]) {
+          <label
+            >{{ s[1]
+            }}<input
+              type="url"
+              [name]="s[0]"
+              placeholder="https://…"
+              maxlength="200"
+              [(ngModel)]="values[s[0]]"
+          /></label>
+        }
+      </section>
+      <div class="settings-save panel stack">
+        <button class="dark" [disabled]="busy() || locating()">
+          {{ busy() ? 'Enregistrement…' : 'Enregistrer les informations du site' }}
+        </button>
+        <p class="caption">
+          Les changements sont appliqués au site après l’enregistrement. La position GPS est
+          enregistrée directement par son bouton.
+        </p>
+      </div>
+    </div>
+  </form>
+} @else {
+  @if (error()) {
+    <button (click)="ngOnInit()">Réessayer le chargement</button>
+  } @else {
+    <p role="status">Chargement des réglages…</p>
+  }
+}

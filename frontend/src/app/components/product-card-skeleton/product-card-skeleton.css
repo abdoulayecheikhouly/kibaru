@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.skeleton-photo {
+  aspect-ratio: 1/1.1;
+  background: var(--pale);
+  border-radius: 6px;
+}
+.skeleton-line {
+  height: 16px;
+  margin-top: 16px;
+  width: 90%;
+  background: var(--pale);
+  border-radius: 4px;
+}
+.short {
+  width: 55%;
+}

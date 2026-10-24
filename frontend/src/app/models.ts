@@ -1,0 +1,9 @@
+export type User={id:number;name:string;email:string;phone:string;role:'customer'|'admin'};
+export type Category={id:number;name:string;slug:string;description:string;visible:boolean;product_count?:number};
+export type Variant={id?:number;sku:string;size:string;color:string;capacity:string;stock:number;active?:boolean};
+export type Product={reference_only?:boolean;id:number;version:number;name:string;sku:string;description:string;category_id:number;category_name:string;price:number;price_mad:number;price_xof:number;stock:number;status:'draft'|'published';image:string;images?:string[];rating_average?:number;rating_count?:number;variants:Variant[];variant_id?:number;size?:string;color?:string;capacity?:string};
+export type Page<T>={items:T[];total:number;page:number;pages:number;limit:number};
+export type CartItem={product_id:number;variant_id:number;quantity:number};
+export type QuoteItem=CartItem&{name:string;sku:string;unit_price:number;image:string;stock:number;variant_label:string};
+export type Quote={items:QuoteItem[];total:number;currency:'MAD'|'XOF'};
+export type Order={id:string;customer_name:string;phone:string;note:string;total:number;currency:'MAD'|'XOF';status:string;created_at:string;items:QuoteItem[];history:{status:string;created_at:string}[];address:string;delivery_method:string};

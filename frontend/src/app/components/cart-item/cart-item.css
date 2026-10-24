@@ -1,0 +1,10 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.cart-item-actions {
+  margin-top: 8px;
+}
+.cart-item img {
+  object-fit: cover;
+}

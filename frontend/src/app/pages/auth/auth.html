@@ -1,0 +1,94 @@
+<div class="auth-page container section">
+  <div class="auth-aside">
+    <p class="eyebrow">LA MAISON KIBARU</p>
+    <h2>Votre prochain<br />essentiel vous attend.</h2>
+    <img src="/assets/femme.svg" alt="Sélection mode Kibaru" />
+  </div>
+  <form class="auth-form stack" #form="ngForm" (ngSubmit)="form.valid && submit()">
+    <p class="eyebrow">{{ admin ? 'ADMINISTRATION' : 'BIENVENUE CHEZ KIBARU' }}</p>
+    <h1>
+      {{ signup ? 'Créer votre compte' : admin ? 'Espace équipe' : 'Heureux de vous revoir' }}
+    </h1>
+    <p class="auth-intro">
+      {{
+        admin
+          ? 'Connectez-vous pour gérer les produits, les catégories et les commandes.'
+          : 'Retrouvez votre sélection et préparez vos envies.'
+      }}
+    </p>
+    @if (error()) {
+      <div class="error" role="alert">{{ error() }}</div>
+    }
+    @if (signup) {
+      <mat-form-field appearance="outline" [hideRequiredMarker]="true"
+        ><mat-label>Prénom et nom *</mat-label
+        ><input
+          matInput
+          name="name"
+          required
+          maxlength="100"
+          autocomplete="name"
+          [(ngModel)]="name" /></mat-form-field
+      ><mat-form-field appearance="outline" [hideRequiredMarker]="true"
+        ><mat-label>Téléphone</mat-label
+        ><input matInput name="phone" type="tel" autocomplete="tel" [(ngModel)]="phone"
+      /></mat-form-field>
+    }
+    <mat-form-field appearance="outline" [hideRequiredMarker]="true"
+      ><mat-label>Adresse e-mail *</mat-label
+      ><input
+        matInput
+        required
+        name="email"
+        type="email"
+        autocomplete="email"
+        maxlength="254"
+        [(ngModel)]="email" /></mat-form-field
+    ><mat-form-field appearance="outline" [hideRequiredMarker]="true"
+      ><mat-label>Mot de passe *</mat-label
+      ><input
+        matInput
+        name="password"
+        required
+        [type]="hidePassword ? 'password' : 'text'"
+        [minlength]="signup ? 12 : 1"
+        maxlength="72"
+        [autocomplete]="signup ? 'new-password' : 'current-password'"
+        [(ngModel)]="password" /><button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="hidePassword = !hidePassword"
+        [attr.aria-label]="hidePassword ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+      >
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+        >
+          <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg></button
+    ></mat-form-field>
+    @if (signup) {
+      <p class="caption">Utilisez au moins 12 caractères.</p>
+    }
+    <button mat-flat-button [disabled]="busy()">
+      {{ busy() ? 'Veuillez patienter…' : signup ? 'Créer mon compte' : 'Se connecter' }}
+    </button>
+    @if (!admin) {
+      <a
+        class="auth-secondary"
+        [routerLink]="signup ? '/connexion' : '/inscription'"
+        [queryParams]="{ retour: target }"
+        >{{ signup ? 'Déjà inscrit ? Se connecter' : 'Créer un compte' }}</a
+      >
+    }
+    @if(!signup){<a class="auth-secondary" routerLink="/mot-de-passe-oublie">Mot de passe oublié ?</a>}
+    <a class="auth-secondary" routerLink="/produits">← Parcourir le catalogue</a>
+  </form>
+</div>
