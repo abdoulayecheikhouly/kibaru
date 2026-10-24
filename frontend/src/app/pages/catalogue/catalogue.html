@@ -35,7 +35,7 @@
           }
         </fieldset>
         <label
-          >Prix minimum · {{store.currency()}}<input
+          >Taille / Pointure<input name="size" maxlength="40" placeholder="Ex. M, 42, 6 ans" [(ngModel)]="filter.size" /></label><label>Prix minimum · {{store.currency()}}<input
             name="min"
             type="number"
             min="0"

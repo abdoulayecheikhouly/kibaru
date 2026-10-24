@@ -29,7 +29,7 @@ export class Catalogue implements OnInit, OnDestroy {
   notice = signal('');
   sub?: Subscription;
   request = 0;
-  filter = { q: '', category: '', min: '', max: '', available: false, sort: 'selection' };
+  filter = { q: '', category: '', min: '', max: '', size:'', available: false, sort: 'selection' };
   constructor(){effect(()=>{this.store.currency();void this.load(this.route.snapshot.queryParams);});}
   ngOnInit() {
     this.store
@@ -41,7 +41,7 @@ export class Catalogue implements OnInit, OnDestroy {
         q: q.get('q') || '',
         category: q.get('category') || '',
         min: q.get('min') || '',
-        max: q.get('max') || '',
+        max: q.get('max') || '',size:q.get('size') || '',
         available: q.get('available') === 'true',
         sort: q.get('sort') || 'selection',
       };

@@ -104,7 +104,7 @@
               @for (i of store.cart(); track i.product_id) {
                 <div class="panel">
                   Produit #{{ i.product_id }} · Quantité {{ i.quantity
-                  }}<button class="text-button" (click)="quantity(i.product_id, 0)">
+                  }}<button class="text-button" (click)="quantity(i.variant_id, 0)">
                     Retirer cet article
                   </button>
                 </div>
@@ -135,7 +135,7 @@
       @if (result(); as r) {
         <h1>Votre demande est préparée</h1>
         <p>Référence {{ r.order.id }} · {{ money(r.order.total,r.order.currency) }}</p>
-        <a class="button" routerLink="/compte">Suivre mes commandes</a><p>Appuyez sur Envoyer dans WhatsApp. La boutique doit encore confirmer votre demande.</p>
+        @if(store.user()){<a class="button" routerLink="/compte">Suivre mes commandes</a>}<p>Appuyez sur Envoyer dans WhatsApp. La boutique doit encore confirmer votre demande.</p>
         <a class="button green" [href]="r.whatsapp_url">Ouvrir WhatsApp ↗</a
         ><a class="button light" routerLink="/produits">Continuer mes achats</a>
       } @else if (!store.cart().length) {
@@ -202,7 +202,7 @@
     }
     @case ('location') {
       <h1>Contacter Kibaru</h1>
-      <p>Votre sélection mode, mode enfant et chaussures.</p>
+      <p>La mode pour femme, homme et enfant, et vos chaussures préférées.</p>
       <div
         class="two-columns section grid grid-cols-1 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]"
       >
